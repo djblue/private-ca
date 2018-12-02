@@ -58,12 +58,24 @@ else
   exit 1
 fi
 
+v3="authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = ${DOM}
+DNS.2 = localhost
+IP.1 = 0.0.0.0
+IP.2 = 127.0.0.1"
+
 if [ ! -f $CRT ]; then
   openssl x509 -req -days $DAYS     \
                     -in $CSR        \
                     -CAkey $CA_KEY  \
                     -CA $CA_CRT     \
                     -set_serial 01  \
+                    -sha256         \
+                    -extfile <(echo "$v3") \
                     -out $CRT
 else
   echo "crt already exists in $CRT"
